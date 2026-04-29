@@ -32,6 +32,10 @@ class TrayApp:
             ),
         )
 
+    def run(self):
+        """主執行緒呼叫，blocking。"""
+        self._icon.run()
+
     def run_detached(self):
         t = threading.Thread(target=self._icon.run, daemon=True)
         t.start()
