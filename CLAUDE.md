@@ -4,54 +4,57 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 專案簡介
 
-Windows 桌面語音輸入工具，按住快捷鍵錄音、放開後自動將語音辨識結果貼入當前游標位置，行為類似輸入法。
+Windows 桌面語音輸入工具，對標 Typeless。按住快捷鍵錄音，放開後自動語音辨識 + LLM 潤飾，結果貼入當前游標位置。設定介面為本地 web 頁面（`localhost:7777`）。
 
 ## 環境設定
 
 ```bash
 pip install -r requirements.txt
+python main.py   # 需以系統管理員身份執行
 ```
 
-複製 `.env.example` 為 `.env` 並填入 Groq API 金鑰：
-```
-GROQ_API_KEY=your_groq_api_key_here
-```
+首次啟動後，右鍵系統匣圖示 → **開啟設定**，在瀏覽器填入 API 金鑰。
 
-## 執行
-
-```bash
-python main.py
-```
-
-> 需要以**系統管理員身份**執行，`keyboard` 套件監聽全域快捷鍵需要管理員權限。
-
-## 架構說明
+## 架構總覽
 
 ```
-main.py          進入點：組裝各模組、掛載快捷鍵事件
-config.py        所有設定集中在此（熱鍵、語言、注入方式、API key）
-recorder.py      sounddevice 麥克風錄音，stop() 回傳暫存 WAV 路徑
-transcriber.py   將 WAV 送至 Groq Whisper API，回傳純文字
-injector.py      透過剪貼簿 + Ctrl+V 將文字注入當前視窗
-tray.py          pystray 系統匣圖示，顏色反映目前狀態
+main.py          進入點：組裝模組、掛載快捷鍵、監聽 stop_event
+config.py        讀寫 settings.json；reload() 供設定變更後熱重載
+recorder.py      sounddevice 錄音；stop() 回傳暫存 WAV 路徑
+transcriber.py   STT：依 config.STT_PROVIDER 呼叫 Groq 或 OpenAI Whisper
+polisher.py      LLM 潤飾：依 config.LLM_PROVIDER / POLISH_MODE 決定行為
+injector.py      剪貼簿貼上（預設）或逐字注入游標
+tray.py          pystray 系統匣；三色圖示 + 右鍵選單（開啟設定 / 結束）
+web/server.py    Flask（port 7777）：GET / 設定頁、POST /api/settings 儲存
+web/templates/   Jinja2 HTML 設定頁面
+web/static/      CSS（深色主題）+ JS（表單送出、密碼顯示切換）
+settings.json    本地設定檔（gitignore），存 API 金鑰與所有選項
 ```
 
 ### 狀態流程
 
 ```
-待機（藍） → [按下 HOTKEY] → 錄音中（紅） → [放開] → 辨識中（橘） → 注入文字 → 待機（藍）
+待機（藍）→ [按下 HOTKEY] → 錄音（紅）→ [放開] → STT + LLM（橘）→ 注入 → 待機（藍）
 ```
 
-### 關鍵設定（config.py）
+### 設定熱重載
 
-| 變數 | 預設值 | 說明 |
-|------|--------|------|
-| `HOTKEY` | `right alt` | 按住錄音的快捷鍵 |
-| `LANGUAGE` | `zh` | Whisper 語言代碼，留空自動偵測 |
-| `INJECT_METHOD` | `clipboard` | `clipboard`（貼上）或 `type`（逐字） |
-| `GROQ_MODEL` | `whisper-large-v3-turbo` | Groq 語音辨識模型 |
+`web/server.py` 儲存設定後呼叫 `config.reload()`，再觸發 `main.py` 中的 `on_settings_reload()`，重新掛載快捷鍵（因為 HOTKEY 可能改變）。
 
-### 文字注入方式
+### 關鍵設定（settings.json）
 
-- `clipboard`（預設）：將文字寫入剪貼簿後模擬 Ctrl+V，速度快、支援中文，操作完成後會還原原始剪貼簿內容。
-- `type`：用 `keyboard.write()` 逐字輸入，對部分應用程式相容性較差，不建議用於中文。
+| 欄位 | 選項 | 說明 |
+|------|------|------|
+| `stt_provider` | `groq` / `openai` | 語音辨識引擎 |
+| `llm_provider` | `groq` / `openai` / `off` | 文字潤飾引擎 |
+| `polish_mode` | `light` / `full` | 輕度去贅詞 / 完整整理 |
+| `hotkey` | 任意鍵名 | 按住錄音的快捷鍵 |
+| `language` | `zh` / `en` / `` | 空字串 = 自動偵測 |
+| `inject_method` | `clipboard` / `type` | 文字注入方式 |
+
+### LLM 模型
+
+| 提供者 | STT | LLM |
+|--------|-----|-----|
+| Groq | `whisper-large-v3-turbo` | `llama-3.3-70b-versatile` |
+| OpenAI | `whisper-1` | `gpt-4o-mini` |

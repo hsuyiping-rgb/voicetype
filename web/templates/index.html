@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceType 設定</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <div class="logo">🎙️</div>
+      <h1>VoiceType</h1>
+      <div id="status-badge" class="badge badge--idle">待機中</div>
+    </header>
+
+    <form id="settings-form">
+
+      <!-- API 金鑰 -->
+      <section class="card">
+        <h2>API 金鑰</h2>
+        <label>
+          OpenAI API Key
+          <div class="input-wrap">
+            <input type="password" name="openai_api_key" id="openai_api_key"
+                   value="{{ s.openai_api_key }}" placeholder="sk-..." autocomplete="off" />
+            <button type="button" class="toggle-vis" data-target="openai_api_key">👁</button>
+          </div>
+        </label>
+        <label>
+          Groq API Key
+          <div class="input-wrap">
+            <input type="password" name="groq_api_key" id="groq_api_key"
+                   value="{{ s.groq_api_key }}" placeholder="gsk_..." autocomplete="off" />
+            <button type="button" class="toggle-vis" data-target="groq_api_key">👁</button>
+          </div>
+        </label>
+      </section>
+
+      <!-- 語音辨識 -->
+      <section class="card">
+        <h2>語音辨識（STT）</h2>
+        <div class="radio-group">
+          <label class="radio-card {% if s.stt_provider == 'groq' %}active{% endif %}">
+            <input type="radio" name="stt_provider" value="groq"
+                   {% if s.stt_provider == 'groq' %}checked{% endif %} />
+            <span class="radio-title">Groq Whisper</span>
+            <span class="radio-sub">速度最快，免費額度大</span>
+          </label>
+          <label class="radio-card {% if s.stt_provider == 'openai' %}active{% endif %}">
+            <input type="radio" name="stt_provider" value="openai"
+                   {% if s.stt_provider == 'openai' %}checked{% endif %} />
+            <span class="radio-title">OpenAI Whisper</span>
+            <span class="radio-sub">穩定，多語言準確度高</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 文字潤飾 -->
+      <section class="card">
+        <h2>文字潤飾（LLM）</h2>
+        <div class="radio-group">
+          <label class="radio-card {% if s.llm_provider == 'groq' %}active{% endif %}">
+            <input type="radio" name="llm_provider" value="groq"
+                   {% if s.llm_provider == 'groq' %}checked{% endif %} />
+            <span class="radio-title">Groq LLaMA</span>
+            <span class="radio-sub">快速，繁中效果佳</span>
+          </label>
+          <label class="radio-card {% if s.llm_provider == 'openai' %}active{% endif %}">
+            <input type="radio" name="llm_provider" value="openai"
+                   {% if s.llm_provider == 'openai' %}checked{% endif %} />
+            <span class="radio-title">OpenAI GPT-4o mini</span>
+            <span class="radio-sub">品質最高</span>
+          </label>
+          <label class="radio-card {% if s.llm_provider == 'off' %}active{% endif %}">
+            <input type="radio" name="llm_provider" value="off"
+                   {% if s.llm_provider == 'off' %}checked{% endif %} />
+            <span class="radio-title">關閉</span>
+            <span class="radio-sub">僅語音辨識，不潤飾</span>
+          </label>
+        </div>
+
+        <label class="mt-12">
+          潤飾模式
+          <select name="polish_mode">
+            <option value="light" {% if s.polish_mode == 'light' %}selected{% endif %}>
+              輕度 — 僅去除贅詞
+            </option>
+            <option value="full" {% if s.polish_mode == 'full' %}selected{% endif %}>
+              完整 — 整理語句與文法
+            </option>
+          </select>
+        </label>
+      </section>
+
+      <!-- 其他設定 -->
+      <section class="card">
+        <h2>其他設定</h2>
+
+        <label>
+          錄音快捷鍵（按住說話）
+          <input type="text" name="hotkey" value="{{ s.hotkey }}"
+                 placeholder="right alt" />
+        </label>
+
+        <label>
+          辨識語言
+          <select name="language">
+            <option value=""    {% if s.language == '' %}selected{% endif %}>自動偵測</option>
+            <option value="zh"  {% if s.language == 'zh' %}selected{% endif %}>繁體中文</option>
+            <option value="en"  {% if s.language == 'en' %}selected{% endif %}>English</option>
+            <option value="ja"  {% if s.language == 'ja' %}selected{% endif %}>日本語</option>
+            <option value="ko"  {% if s.language == 'ko' %}selected{% endif %}>한국어</option>
+          </select>
+        </label>
+
+        <label>
+          文字注入方式
+          <select name="inject_method">
+            <option value="clipboard" {% if s.inject_method == 'clipboard' %}selected{% endif %}>
+              剪貼簿貼上（推薦）
+            </option>
+            <option value="type" {% if s.inject_method == 'type' %}selected{% endif %}>
+              逐字輸入
+            </option>
+          </select>
+        </label>
+      </section>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary" id="save-btn">儲存設定</button>
+        <span id="save-msg" class="save-msg"></span>
+      </div>
+
+    </form>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

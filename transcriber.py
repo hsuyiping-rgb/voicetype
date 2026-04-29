@@ -1,30 +1,48 @@
 import os
-from groq import Groq
-from config import GROQ_API_KEY, GROQ_MODEL, LANGUAGE
-
-
-_client = None
-
-
-def _get_client() -> Groq:
-    global _client
-    if _client is None:
-        if not GROQ_API_KEY:
-            raise ValueError("GROQ_API_KEY 未設定，請在 .env 檔案中填入 API 金鑰")
-        _client = Groq(api_key=GROQ_API_KEY)
-    return _client
+import config
 
 
 def transcribe(wav_path: str) -> str:
-    client = _get_client()
+    """根據 STT_PROVIDER 設定選擇辨識引擎，回傳純文字。"""
     try:
-        with open(wav_path, "rb") as f:
-            response = client.audio.transcriptions.create(
-                model=GROQ_MODEL,
-                file=("audio.wav", f, "audio/wav"),
-                language=LANGUAGE or None,
-                response_format="text",
-            )
-        return response.strip() if isinstance(response, str) else response.text.strip()
+        provider = config.STT_PROVIDER
+        if provider == "openai":
+            return _transcribe_openai(wav_path)
+        else:
+            return _transcribe_groq(wav_path)
     finally:
-        os.unlink(wav_path)
+        try:
+            os.unlink(wav_path)
+        except OSError:
+            pass
+
+
+def _transcribe_groq(wav_path: str) -> str:
+    from groq import Groq
+    if not config.GROQ_API_KEY:
+        raise ValueError("Groq API 金鑰未設定，請開啟設定頁填入")
+    client = Groq(api_key=config.GROQ_API_KEY)
+    with open(wav_path, "rb") as f:
+        response = client.audio.transcriptions.create(
+            model=config.GROQ_STT_MODEL,
+            file=("audio.wav", f, "audio/wav"),
+            language=config.LANGUAGE or None,
+            response_format="text",
+        )
+    result = response if isinstance(response, str) else response.text
+    return result.strip()
+
+
+def _transcribe_openai(wav_path: str) -> str:
+    from openai import OpenAI
+    if not config.OPENAI_API_KEY:
+        raise ValueError("OpenAI API 金鑰未設定，請開啟設定頁填入")
+    client = OpenAI(api_key=config.OPENAI_API_KEY)
+    with open(wav_path, "rb") as f:
+        response = client.audio.transcriptions.create(
+            model=config.OPENAI_STT_MODEL,
+            file=f,
+            language=config.LANGUAGE or None,
+            response_format="text",
+        )
+    return response.strip()

@@ -1,0 +1,172 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --border: #2a2d3a;
+  --accent: #4A90D9;
+  --accent-hover: #5ba3f0;
+  --text: #e8eaf0;
+  --text-muted: #7a7f9a;
+  --red: #E74C3C;
+  --green: #2ecc71;
+  --orange: #F39C12;
+  --radius: 12px;
+}
+
+body {
+  font-family: -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 24px 16px 48px;
+}
+
+.container {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Header */
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.logo { font-size: 28px; }
+header h1 { font-size: 22px; font-weight: 700; flex: 1; }
+
+/* Badge */
+.badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: .4px;
+}
+.badge--idle       { background: rgba(74,144,217,.15); color: var(--accent); }
+.badge--recording  { background: rgba(231,76,60,.15);  color: var(--red); }
+.badge--processing { background: rgba(243,156,18,.15); color: var(--orange); }
+
+/* Card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card h2 {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+/* Label + Input */
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+label:last-child { margin-bottom: 0; }
+
+.mt-12 { margin-top: 12px; }
+
+input[type="text"],
+input[type="password"],
+select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color .15s;
+  width: 100%;
+}
+input:focus, select:focus { border-color: var(--accent); }
+select option { background: var(--surface); }
+
+/* Password toggle */
+.input-wrap {
+  position: relative;
+  display: flex;
+}
+.input-wrap input { padding-right: 40px; }
+.toggle-vis {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--text-muted);
+  padding: 0 4px;
+}
+.toggle-vis:hover { color: var(--text); }
+
+/* Radio card group */
+.radio-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+.radio-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 0;
+}
+.radio-card input[type="radio"] { display: none; }
+.radio-card.active,
+.radio-card:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(74,144,217,.08);
+}
+.radio-card:hover { border-color: var(--accent-hover); }
+.radio-title { font-size: 14px; font-weight: 600; }
+.radio-sub   { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* Actions */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.btn-primary:hover  { background: var(--accent-hover); }
+.btn-primary:active { transform: scale(.97); }
+
+.save-msg {
+  font-size: 14px;
+  color: var(--green);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.save-msg.show { opacity: 1; }
