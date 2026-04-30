@@ -3,7 +3,7 @@ import config
 _PROMPTS = {
     "light": (
         "請將以下口語文字中的贅詞（嗯、啊、那個、就是、對對對 等）刪除，"
-        "只做最小必要的修改，保留原始語意與用詞，直接輸出結果，不要加任何說明。\n\n"
+        "只做最小必要的修改，保留原始語意與用詞，必須使用繁體中文輸出，直接輸出結果，不要加任何說明。\n\n"
         "{text}"
     ),
     "full": (
@@ -11,6 +11,7 @@ _PROMPTS = {
         "1. 刪除贅詞與口頭語（嗯、啊、那個、就是說 等）\n"
         "2. 修正文法與標點\n"
         "3. 保留原始語意，不要增加額外內容\n"
+        "4. 必須使用繁體中文輸出，不可使用簡體中文\n"
         "直接輸出整理後的文字，不要加說明或前綴。\n\n"
         "{text}"
     ),
@@ -34,6 +35,9 @@ def polish(text: str) -> str:
         return text
 
 
+_SYSTEM = "你是繁體中文文字編輯助手。所有輸出必須使用繁體中文，嚴禁使用簡體中文。"
+
+
 def _polish_groq(prompt: str) -> str:
     from groq import Groq
     if not config.GROQ_API_KEY:
@@ -41,7 +45,10 @@ def _polish_groq(prompt: str) -> str:
     client = Groq(api_key=config.GROQ_API_KEY)
     response = client.chat.completions.create(
         model=config.GROQ_LLM_MODEL,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {"role": "system", "content": _SYSTEM},
+            {"role": "user",   "content": prompt},
+        ],
         temperature=0.3,
         max_tokens=1024,
     )
@@ -55,7 +62,10 @@ def _polish_openai(prompt: str) -> str:
     client = OpenAI(api_key=config.OPENAI_API_KEY)
     response = client.chat.completions.create(
         model=config.OPENAI_LLM_MODEL,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {"role": "system", "content": _SYSTEM},
+            {"role": "user",   "content": prompt},
+        ],
         temperature=0.3,
         max_tokens=1024,
     )
