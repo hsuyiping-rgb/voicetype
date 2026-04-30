@@ -1,4 +1,8 @@
+import opencc
 import config
+
+# 簡體 → 繁體轉換器（台灣用語）
+_converter = opencc.OpenCC("s2twp")
 
 _PROMPTS = {
     "light": (
@@ -34,11 +38,14 @@ def polish(text: str) -> str:
     provider = config.LLM_PROVIDER
 
     if provider == "openai":
-        return _polish_openai(prompt)
+        result = _polish_openai(prompt)
     elif provider == "groq":
-        return _polish_groq(prompt)
+        result = _polish_groq(prompt)
     else:
         return text
+
+    # 確保中文輸出為繁體（不影響英文）
+    return _converter.convert(result)
 
 
 def _polish_groq(prompt: str) -> str:
