@@ -1,7 +1,14 @@
+import sys
 import json
 import os
 
-SETTINGS_PATH = os.path.join(os.path.dirname(__file__), "settings.json")
+def _app_dir() -> str:
+    """exe 執行時用 exe 所在目錄；開發時用 config.py 所在目錄。"""
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+SETTINGS_PATH = os.path.join(_app_dir(), "settings.json")
 
 _DEFAULTS = {
     "openai_api_key": "",

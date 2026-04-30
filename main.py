@@ -1,6 +1,14 @@
 import sys
+import os
 import threading
 import ctypes
+
+# exe 模式下將錯誤寫入日誌檔
+if getattr(sys, 'frozen', False):
+    _log_path = os.path.join(os.path.dirname(sys.executable), "voicetype.log")
+    _log = open(_log_path, "w", encoding="utf-8", buffering=1)
+    sys.stdout = _log
+    sys.stderr = _log
 import config
 import hotkey as hk
 from recorder import Recorder
