@@ -61,7 +61,12 @@ def main():
 
     web_server.set_reload_callback(on_settings_reload)
 
-    threading.Thread(target=lambda: (__import__('time').sleep(0.5), register()), daemon=True).start()
+    def _start_hotkey():
+        import time
+        time.sleep(0.5)
+        register()
+
+    threading.Thread(target=_start_hotkey, daemon=True, name="hotkey-init").start()
 
     tray.run()
 
