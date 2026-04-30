@@ -1,5 +1,6 @@
 import time
 import ctypes
+import ctypes.wintypes
 from ctypes import wintypes
 import pyperclip
 import config

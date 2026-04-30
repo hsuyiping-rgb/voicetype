@@ -21,27 +21,39 @@ def main():
 
     def on_press():
         if not recorder._recording:
+            print("[DEBUG] 偵測到按下，開始錄音...")
             tray.set_recording()
             recorder.start()
 
     def on_release():
         if recorder._recording:
+            print("[DEBUG] 偵測到放開，停止錄音...")
             tray.set_processing()
             wav_path = recorder.stop()
             if wav_path:
                 try:
+                    print("[DEBUG] 送出辨識...")
                     text = transcribe(wav_path)
+                    print(f"[DEBUG] 辨識結果：{text!r}")
                     if text:
                         text = polish(text)
+                        print(f"[DEBUG] 潤飾結果：{text!r}")
+                        print("[DEBUG] 注入文字中...")
                         inject(text)
+                        print("[DEBUG] 注入完成")
                 except Exception as e:
                     print(f"[VoiceType] 錯誤：{e}", file=sys.stderr)
+                    import traceback; traceback.print_exc()
+            else:
+                print("[DEBUG] 錄音太短或無聲，略過")
             tray.set_idle()
 
     def register():
-        hk.register(config.HOTKEY, on_press, on_release)
-        print(f"[VoiceType] 已啟動 — 按住 [{config.HOTKEY}] 說話，放開後自動輸入")
-        print("[VoiceType] 系統匣右鍵 → 開啟設定 | 結束")
+        ok = hk.register(config.HOTKEY, on_press, on_release)
+        if ok:
+            print(f"[VoiceType] 已啟動 — 按住 [{config.HOTKEY}] 說話，放開後自動輸入")
+        else:
+            print(f"[VoiceType] ⚠ 快捷鍵 [{config.HOTKEY}] 註冊失敗，可能被其他程式佔用")
 
     def on_settings_reload():
         hk.unregister()
@@ -49,10 +61,8 @@ def main():
 
     web_server.set_reload_callback(on_settings_reload)
 
-    # 背景啟動快捷鍵（等 tray 就緒）
     threading.Thread(target=lambda: (__import__('time').sleep(0.5), register()), daemon=True).start()
 
-    # pystray 在主執行緒執行
     tray.run()
 
 
