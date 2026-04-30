@@ -1,10 +1,22 @@
+import sys
+import os
 import threading
 import webbrowser
 from flask import Flask, render_template, request, jsonify
 import config
 
 WEB_PORT = 7777
-_app = Flask(__name__, template_folder="templates", static_folder="static")
+
+# PyInstaller 打包後資源路徑
+def _base_path():
+    if getattr(sys, 'frozen', False):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))
+
+_web_dir = _base_path() if getattr(sys, 'frozen', False) else os.path.dirname(os.path.abspath(__file__))
+_app = Flask(__name__,
+             template_folder=os.path.join(_web_dir, "templates"),
+             static_folder=os.path.join(_web_dir, "static"))
 _reload_callback = None  # 設定儲存後通知 main.py 重載
 
 
