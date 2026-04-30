@@ -10,12 +10,14 @@ a = Analysis(
     datas=[
         ('web/templates', 'web/templates'),
         ('web/static',    'web/static'),
+        (r'C:\Users\vm\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\opencc\config',     'opencc/config'),
+        (r'C:\Users\vm\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\opencc\dictionary', 'opencc/dictionary'),
     ],
     hiddenimports=[
         'groq', 'openai', 'flask', 'sounddevice', 'scipy',
         'scipy.io.wavfile', 'pystray', 'PIL', 'PIL.Image', 'PIL.ImageDraw',
         'keyboard', 'pyperclip', 'engineio', 'pkg_resources.py2_warn',
-        'pystray._win32',
+        'pystray._win32', 'opencc',
     ],
     hookspath=[],
     hooksconfig={},
@@ -43,7 +45,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,      # 不顯示黑色命令視窗
+    console=False,
     disable_windowed_traceback=False,
     target_arch=None,
     codesign_identity=None,

@@ -1,5 +1,12 @@
+import sys
+import os
 import opencc
 import config
+
+# PyInstaller 打包後 opencc 資料檔路徑
+if getattr(sys, 'frozen', False):
+    _opencc_dir = os.path.join(sys._MEIPASS, 'opencc')
+    os.environ.setdefault('OPENCC_DATA', _opencc_dir)
 
 # 簡體 → 繁體轉換器（台灣用語）
 _converter = opencc.OpenCC("s2twp")
