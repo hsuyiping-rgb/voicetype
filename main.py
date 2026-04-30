@@ -1,5 +1,6 @@
 import sys
 import threading
+import ctypes
 import config
 import hotkey as hk
 from recorder import Recorder
@@ -8,6 +9,13 @@ from polisher import polish
 from injector import inject
 from tray import TrayApp
 from web import server as web_server
+
+# 防止重複啟動
+_MUTEX_NAME = "VoiceType_SingleInstance"
+_mutex = ctypes.windll.kernel32.CreateMutexW(None, True, _MUTEX_NAME)
+if ctypes.windll.kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
+    print("[VoiceType] 已經在執行中，不允許重複啟動。")
+    sys.exit(0)
 
 
 def main():
