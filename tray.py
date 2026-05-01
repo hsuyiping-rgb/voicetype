@@ -6,7 +6,16 @@ import pystray
 def _make_icon(color: str) -> Image.Image:
     img = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
+    # 底色圓形
     draw.ellipse([4, 4, 60, 60], fill=color)
+    # 麥克風主體（白色圓角矩形）
+    draw.rounded_rectangle([24, 10, 40, 36], radius=8, fill="white")
+    # 麥克風弧形外殼
+    draw.arc([17, 22, 47, 46], start=0, end=180, fill="white", width=4)
+    # 麥克風支架（直線）
+    draw.line([32, 46, 32, 54], fill="white", width=4)
+    # 底座橫線
+    draw.line([24, 54, 40, 54], fill="white", width=4)
     return img
 
 
