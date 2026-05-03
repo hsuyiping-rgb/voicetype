@@ -1,9 +1,8 @@
+import io
 import threading
 import numpy as np
 import sounddevice as sd
 import scipy.io.wavfile as wav
-import tempfile
-import os
 from config import SAMPLE_RATE, CHANNELS
 
 
@@ -30,7 +29,7 @@ class Recorder:
         )
         self._stream.start()
 
-    def stop(self) -> str | None:
+    def stop(self) -> bytes | None:
         with self._lock:
             self._recording = False
 
@@ -46,6 +45,7 @@ class Recorder:
         if len(audio) < SAMPLE_RATE * 0.3:
             return None
 
-        tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-        wav.write(tmp.name, SAMPLE_RATE, audio)
-        return tmp.name
+        # 直接寫入記憶體，省掉磁碟 I/O
+        buf = io.BytesIO()
+        wav.write(buf, SAMPLE_RATE, audio)
+        return buf.getvalue()

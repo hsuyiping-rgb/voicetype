@@ -59,11 +59,11 @@ def main():
             if recorder._recording:
                 print("[DEBUG] 偵測到放開，停止錄音...")
                 tray.set_processing()
-                wav_path = recorder.stop()
-                if wav_path:
+                audio_bytes = recorder.stop()
+                if audio_bytes:
                     try:
                         print("[DEBUG] 送出辨識...")
-                        text = transcribe(wav_path)
+                        text = transcribe(audio_bytes)
                         print(f"[DEBUG] 辨識結果：{text!r}")
                         if text:
                             text = polish(text)

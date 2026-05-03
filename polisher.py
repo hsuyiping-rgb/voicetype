@@ -34,6 +34,30 @@ _SYSTEM = (
     "核心規則：中文一律輸出繁體中文；英文保持英文原文；嚴禁將任何語言翻譯成另一種語言。"
 )
 
+# 快取 API client，避免每次重新建立連線
+_groq_client = None
+_openai_client = None
+
+
+def _get_groq():
+    global _groq_client
+    if _groq_client is None or _groq_client.api_key != config.GROQ_API_KEY:
+        from groq import Groq
+        if not config.GROQ_API_KEY:
+            raise ValueError("Groq API 金鑰未設定")
+        _groq_client = Groq(api_key=config.GROQ_API_KEY)
+    return _groq_client
+
+
+def _get_openai():
+    global _openai_client
+    if _openai_client is None or _openai_client.api_key != config.OPENAI_API_KEY:
+        from openai import OpenAI
+        if not config.OPENAI_API_KEY:
+            raise ValueError("OpenAI API 金鑰未設定")
+        _openai_client = OpenAI(api_key=config.OPENAI_API_KEY)
+    return _openai_client
+
 
 def polish(text: str) -> str:
     """根據 polish_mode 決定是否潤飾，回傳處理後的文字。"""
@@ -56,10 +80,7 @@ def polish(text: str) -> str:
 
 
 def _polish_groq(prompt: str) -> str:
-    from groq import Groq
-    if not config.GROQ_API_KEY:
-        raise ValueError("Groq API 金鑰未設定")
-    client = Groq(api_key=config.GROQ_API_KEY)
+    client = _get_groq()
     response = client.chat.completions.create(
         model=config.GROQ_LLM_MODEL,
         messages=[
@@ -73,10 +94,7 @@ def _polish_groq(prompt: str) -> str:
 
 
 def _polish_openai(prompt: str) -> str:
-    from openai import OpenAI
-    if not config.OPENAI_API_KEY:
-        raise ValueError("OpenAI API 金鑰未設定")
-    client = OpenAI(api_key=config.OPENAI_API_KEY)
+    client = _get_openai()
     response = client.chat.completions.create(
         model=config.OPENAI_LLM_MODEL,
         messages=[
