@@ -32,7 +32,7 @@ GROQ_STT_MODEL = "whisper-large-v3-turbo"
 OPENAI_STT_MODEL = "whisper-1"
 
 # LLM 模型
-GROQ_LLM_MODEL = "llama-3.1-8b-instant"
+GROQ_LLM_MODEL = "llama-3.3-70b-versatile"
 OPENAI_LLM_MODEL = "gpt-4o-mini"
 
 
