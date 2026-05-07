@@ -54,6 +54,23 @@ def save_settings():
     return jsonify({"status": "ok"})
 
 
+@_app.route("/api/autostart", methods=["GET"])
+def get_autostart():
+    import autostart
+    return jsonify({"enabled": autostart.is_enabled()})
+
+
+@_app.route("/api/autostart", methods=["POST"])
+def set_autostart():
+    import autostart
+    data = request.get_json()
+    if data.get("enabled"):
+        autostart.enable()
+    else:
+        autostart.disable()
+    return jsonify({"enabled": autostart.is_enabled()})
+
+
 @_app.route("/api/status", methods=["GET"])
 def status():
     return jsonify({

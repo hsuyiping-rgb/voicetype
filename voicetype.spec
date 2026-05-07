@@ -17,7 +17,7 @@ a = Analysis(
         'groq', 'openai', 'flask', 'sounddevice', 'scipy',
         'scipy.io.wavfile', 'pystray', 'PIL', 'PIL.Image', 'PIL.ImageDraw',
         'keyboard', 'pyperclip', 'engineio', 'pkg_resources.py2_warn',
-        'pystray._win32', 'opencc',
+        'pystray._win32', 'opencc', 'winreg', 'autostart',
     ],
     hookspath=[],
     hooksconfig={},

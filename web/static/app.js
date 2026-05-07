@@ -48,6 +48,34 @@ document.getElementById('settings-form').addEventListener('submit', async e => {
   }
 });
 
+// 開機自動啟動開關
+const autostartBtn = document.getElementById('autostart-btn');
+
+async function loadAutostart() {
+  try {
+    const res = await fetch('/api/autostart');
+    const data = await res.json();
+    autostartBtn.setAttribute('aria-pressed', data.enabled ? 'true' : 'false');
+  } catch (_) {}
+}
+
+autostartBtn.addEventListener('click', async () => {
+  const current = autostartBtn.getAttribute('aria-pressed') === 'true';
+  const next = !current;
+  autostartBtn.setAttribute('aria-pressed', next ? 'true' : 'false');
+  try {
+    await fetch('/api/autostart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: next }),
+    });
+  } catch (_) {
+    autostartBtn.setAttribute('aria-pressed', current ? 'true' : 'false');
+  }
+});
+
+loadAutostart();
+
 // 狀態輪詢（每 2 秒）
 async function pollStatus() {
   try {
